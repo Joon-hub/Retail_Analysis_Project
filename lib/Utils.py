@@ -15,9 +15,11 @@ def get_spark_session(env):
         # threads as there are cores on the local machine will be used.
         # The SparkSession is given the name 'retail-local'.
         return SparkSession.builder \
-            .config(conf=get_spark_config(env)) \
-            .master('local[*]') \
-            .appName('retail-local') \
+            .appName("RetailAnalysis") \
+            .master("local[*]") \
+            .config("spark.driver.extraJavaOptions", "-Dlog4j.configuration=file:log4j.properties") \
+            .config("spark.executor.extraJavaOptions", "-Dlog4j.configuration=file:log4j.properties") \
+            .config("spark.ui.showConsoleProgress", "false") \
             .getOrCreate()
     else:
         # In non-local mode, the master is set to whatever is specified in the
