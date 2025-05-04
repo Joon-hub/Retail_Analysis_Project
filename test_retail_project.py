@@ -18,6 +18,8 @@ def test_read_orders_df(spark):
     order_count = read_orders(spark, 'LOCAL').count()
     assert order_count == 68884
 
+
+# Transformations
 @pytest.mark.transformation
 def test_filter_closed_orders(spark):
     orders_df = read_orders(spark, 'LOCAL')
@@ -35,6 +37,7 @@ def test_count_order_state(spark,expected_results):
     actual_results = count_orders_state(customers_df)
     assert actual_results.collect() == expected_results.collect()
 
+## how to run multiple tests
 @pytest.mark.skip()
 def test_check_closed_orders_count(spark):
     orders_df = read_orders(spark, 'LOCAL')
@@ -53,6 +56,7 @@ def test_check_Complete_orders_count(spark):
     filtered_count = filter_order_generic(orders_df,"COMPLETE").count()
     assert filtered_count == 22900
 
+## parametrize tests
 @pytest.mark.latest
 @pytest.mark.parametrize("status,count", 
     [
