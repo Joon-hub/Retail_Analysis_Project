@@ -1,0 +1,80 @@
+How to check python version --> python --version (3.11.7)
+                            --> python3 --version (3.9.6)
+
+How to Check Which Shell You’re Using - echo $Shell
+If it shows:
+    /bin/zsh → You're using zsh
+    /bin/bash → You're using bash
+
+🛠️ If You're Using Zsh Zsh uses .zshrc instead of .bash_profile. --> cat ~/.zshrc
+
+
+
+PIPENV
+======
+pipenv is a python packaging and venv tool that combines 
+- pip for installing packages
+- venv (for managing isolated env)
+
+Why Use pipenv?
+---------------
+Python doesn’t natively manage dependencies very well across different projects.
+
+- Conflicts between package versions
+- System-wide package pollution
+- Manual environment setup
+
+pipenv --venv - shows the full path venv associated with your project 
+which python 
+
+Core Concepts
+--------------
+1. 📦 Virtual Environments
+Each Python project needs its own environment so that dependencies don't clash across projects.
+
+With pipenv, the environment is created automatically in a clean directory specific to your project.
+--> pipenv shell
+
+2. 📜 Pipfile
+Instead of requirements.txt, pipenv uses a file called Pipfile. It records:
+
+- Python version
+- Direct project dependencies (like pandas, numpy)
+- Dev dependencies (like pytest, black)
+
+Example:
+    [[source]]
+    url = "https://pypi.org/simple"
+    verify_ssl = true
+
+    [packages]
+    numpy = "*"
+    pandas = "^1.3"
+
+    [dev-packages]
+    pytest = "*"
+
+3. 🔒 Pipfile.lock
+pipenv automatically creates a lock file (Pipfile.lock) that freezes exact versions of all installed packages 
+
+🛠️ Common Pipenv Commands
+Task	Command
+Install pipenv (if not yet) 	--> pip install pipenv
+Create env & install a package	--> pipenv install numpy
+Install dev-only package	    --> pipenv install --dev black
+Activate environment	        --> pipenv shell
+Run a script inside env         -->	pipenv run python script.py
+Lock dependencies	            --> pipenv lock
+Uninstall a package	            --> pipenv uninstall pandas
+Remove entire env	            --> pipenv --rm
+
+check all pipenv Envs?
+ls ~/.local/share/virtualenvs/
+
+-- if something is not availaible in global version then it will 
+not do the changes 
+-- in this case pipenv use default dependencies
+
+
+run the app 
+pipenv run python /Users/sudhirjoon/Desktop/summitMittal\ course/RetailAnalysisProject/application_main.py LOCAL
