@@ -15,17 +15,11 @@ if __name__ == "__main__":
     # Create Spark Session
     spark = Utils.get_spark_session(job_run_env)
 
-    log4jLogger = spark._jvm.org.apache.log4j
-    logger = log4jLogger.LogManager.getLogger("retail_analysis")
-
-
-    # Set Spark's internal log level to ERROR to avoid INFO level logs from Spark
-    spark.sparkContext.setLogLevel("ERROR")
-
     # Initialize logger after Spark session
     logger = Log4j(spark)
 
     logger.info("Created Spark Session")
+    logger.info("Job Started")
 
     # Read Data
     logger.info("Reading orders and customers Data")

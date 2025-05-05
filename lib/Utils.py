@@ -10,16 +10,16 @@ def get_spark_session(env):
     The env parameter decides which Spark configuration to use and whether to use
     the local master or a remote one.
     """
-    if env == 'local':
+    if env == 'LOCAL':
         # In local mode, the master is set to 'local[*]' which means as many
         # threads as there are cores on the local machine will be used.
         # The SparkSession is given the name 'retail-local'.
         return SparkSession.builder \
             .appName("RetailAnalysis") \
-            .master("local[*]") \
-            .config("spark.driver.extraJavaOptions", "-Dlog4j.configuration=file:log4j.properties") \
-            .config("spark.executor.extraJavaOptions", "-Dlog4j.configuration=file:log4j.properties") \
-            .config("spark.ui.showConsoleProgress", "false") \
+            .config(conf=get_spark_config(env)) \
+            .config("spark.driver.extraJavaOptions", 
+                    "-Dlog4j.configuration=file:log4j.properties") \
+            .master("local[2]") \
             .getOrCreate()
     else:
         # In non-local mode, the master is set to whatever is specified in the
