@@ -21,5 +21,10 @@ pipeline{
                 echo "Deploy completed sucessfully"
             }
         }
+        stage('Integration Test') {
+            steps {
+                echo "Integration Test completed sucessfully"
+            }
+        }
     }
 }
