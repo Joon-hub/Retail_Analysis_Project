@@ -1,72 +1,57 @@
 pipeline {
-  agent any  // runs on any available Jenkins nodes
-
-  environment {
-    LABS_CREDS = credentials('labcreds')  // securely injects username/password
-    JAVA_HOME  = '/opt/bitnami/java'
-    PATH       = "${env.JAVA_HOME}/bin:${env.PATH}"
-  }
-
-  stages {
-    stage('Setup Python') {
-      steps {
-        echo "Setting up Python environment..."
-        sh 'python3 -m venv venv'
-        sh 'venv/bin/pip install --upgrade pip pipenv'
-      }
+    agent any
+    
+    environment {
+        LABS = credentials('labcreds')
+        JAVA_HOME = '/opt/bitnami/java'  // Set your JAVA_HOME path here.
+        PATH = "${env.JAVA_HOME}/bin:${env.PATH}"  // Add Java binaries to PATH
     }
-
-    stage('Install Dependencies') {
-      steps {
-        echo "Installing dependencies..."
-        sh 'venv/bin/pipenv install --deploy'
-      }
+    
+    stages {
+        stage('Setup Virtual Environment') {
+            steps {
+                script {
+                    // Create a virtual environment with the project name (Retail pipeline)
+                    sh 'python3 -m venv retail_pipeline_venv'
+                    // Upgrade pip and install pipenv in the virtual environment
+                    sh './retail_pipeline_venv/bin/pip install --upgrade pip'
+                    sh './retail_pipeline_venv/bin/pip install pipenv'
+                }
+            }
+        }
+        stage('Install Dependencies') {
+            steps {
+                script {
+                    // Install your project dependencies (e.g., requirements.txt or Pipfile)
+                    sh './retail_pipeline_venv/bin/pipenv install'
+                }
+            }
+        }
+        stage('Test') {
+            steps {
+                script {
+                    // Ensure JAVA_HOME is set for PySpark to work
+                    sh 'echo $JAVA_HOME'
+                    sh 'echo $PATH'
+                    
+                    // Run tests (assuming you are using pytest for tests)
+                    sh './retail_pipeline_venv/bin/pipenv run pytest'
+                }
+            }
+        }
+        stage('Package') {
+            steps {
+                // Create the zip file but exclude the venv directory
+                sh 'zip -r retailproject.zip . -x "retail_pipeline_venv/*"'
+            }
+        }
+        stage('Deploy') {
+            steps {
+                // Add deployment steps here (e.g., deploy to a server or cloud)
+                sh 'sshpass -p $LABS_PSW scp -o StrictHostKeyChecking=no -r retailproject.zip $LABS_USR@g02.itversity.com:/home/itv012419/retailproject'
+            }
+        }
     }
-
-    stage('Test') {
-      steps {
-        echo "Running tests..."
-        sh 'venv/bin/pipenv run pytest --maxfail=1 --disable-warnings'
-      }
-    }
-
-    stage('Package') {
-      steps {
-        echo "Packaging project..."
-        sh 'zip -r project.zip . -x "venv/*"'
-      }
-    }
-
-    stage('Deploy') {
-      steps {
-        echo "Deploying to remote server..."
-        sh '''
-          sshpass -p $LABS_CREDS_PSW \
-            scp -o StrictHostKeyChecking=no \
-            project.zip $LABS_CREDS_USR@remote.server:/deploy/path
-        '''
-      }
-    }
-  }
-
-  post {
-    always {
-      node {  // Added node block for context
-        echo "Archiving artifacts and processing test results..."
-        archiveArtifacts artifacts: 'project.zip', fingerprint: true, allowEmptyArchive: true
-        junit 'reports/**/*.xml'
-      }
-    }
-    success { 
-      echo 'Build succeeded!'
-    }
-    failure { 
-      node {  // Added node block for context
-        echo "Sending failure notification..."
-        mail to: 'dev-team@example.com', 
-             subject: "Failed: ${env.JOB_NAME}", 
-             body: 'Check logs.'
-      }
-    }
-  }
 }
+
+
